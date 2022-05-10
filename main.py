@@ -26,6 +26,7 @@ from sqlalchemy import over
 filterwarnings('ignore')
 
 newsapi = NewsApiClient(api_key='95b1fb3ce561467d9ffff81d954940a6')
+newsapiCounter = 0
 
 class Object(object):
     pass
@@ -52,6 +53,9 @@ async def root():
 
 @app.get("/top-headlines/")
 async def getTopHeadlines():
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
     top_headlines = newsapi.get_top_headlines(language='en')
     filteredResponse = filterResponse(top_headlines)
     alogrithmResponse = lda(top_headlines)
@@ -59,28 +63,39 @@ async def getTopHeadlines():
 
 @app.get("/top-headlines/{country}")
 async def getTopHeadlinesOfCountry(country: str):
-    top_headlines_country = newsapi.get_top_headlines(country=country,
-                                                    language='en')
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines_country = newsapi.get_top_headlines(country=country, language='en')
     filteredResponse = filterResponse(top_headlines_country)
     alogrithmResponse = lda(top_headlines_country)
     return alogrithmResponse, filteredResponse 
 
 @app.get("/top-headlines/{category}")
 async def getTopHeadlinesOfCategory(category: str):
-    top_headlines_category = newsapi.get_top_headlines(category=category,
-                                                        language='en')
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines_category = newsapi.get_top_headlines(category=category, language='en')
     filteredResponse = filterResponse(top_headlines_category)
     alogrithmResponse = lda(top_headlines_category)
     return alogrithmResponse, filteredResponse                                                
 
 @app.get("/everything/{fromDate}/{toDate}")
 async def getEverything(fromDate: str, toDate: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
     everything_from_to = newsapi.get_everything(language='en', from_param=fromDate, to=toDate)
     filteredResponse = filterResponse(everything_from_to)
     alogrithmResponse = lda(everything_from_to)
     return alogrithmResponse, filteredResponse
 
-
+@app.get("/testing")
+async def testing():
+    global newsapiCounter
+    newsapiCounter += 1
+    return changeAPIToken()
 
 
 def lda(response):
@@ -119,8 +134,6 @@ def lda(response):
 
 # One function for all the steps:
 def clean(doc):
-
-
     stop = set(stopwords.words('english'))
 
     exclude = set(string.punctuation)
@@ -165,4 +178,14 @@ def filterResponse(response):
         newsArticles.append(a)
     return newsArticles
 
-
+def changeAPIToken():
+    global newsapi
+    global newsapiCounter
+    if newsapiCounter == 100:
+        newsapi = NewsApiClient(api_key='f1d4b9b6452540569ad465d34528a183')
+    elif newsapiCounter == 200:
+        newsapi = NewsApiClient(api_key='7697e19289784c4b90a6154d1e72714d')
+    elif newsapiCounter == 300:
+        newsapi = NewsApiClient(api_key='8ab302232d804bc38a9d7b5127b8287f')
+    else:
+        None

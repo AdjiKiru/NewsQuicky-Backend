@@ -1,19 +1,12 @@
-from cgi import test
-from pydoc import doc
-from turtle import title
 from fastapi import FastAPI
 from newsapi import NewsApiClient
 
 # for text preprocessing
 import re
-import spacy
 
 from nltk.corpus import stopwords 
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
-
-# import numpy for matrix operation
-import numpy as np
 
 # Importing Gensim
 import gensim

@@ -51,52 +51,45 @@ async def root():
     return "Hello NewsQuicky"
 
 
-@app.get("/top-headlines/")
-async def getTopHeadlines():
+@app.get("/top-headlines/{language}/")
+async def getTopHeadlines(language: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
-    top_headlines = newsapi.get_top_headlines(language='en')
+    top_headlines = newsapi.get_top_headlines(language=language)
     filteredResponse = filterResponse(top_headlines)
     alogrithmResponse = lda(top_headlines)
     return alogrithmResponse, filteredResponse
 
-@app.get("/top-headlines/{country}")
-async def getTopHeadlinesOfCountry(country: str):
+@app.get("/top-headlines/{language}/{country}")
+async def getTopHeadlinesOfCountry(language: str, country: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
-    top_headlines_country = newsapi.get_top_headlines(country=country, language='en')
+    top_headlines_country = newsapi.get_top_headlines(country=country, language=language)
     filteredResponse = filterResponse(top_headlines_country)
     alogrithmResponse = lda(top_headlines_country)
     return alogrithmResponse, filteredResponse 
 
-@app.get("/top-headlines/{category}")
-async def getTopHeadlinesOfCategory(category: str):
+@app.get("/top-headlines/{language}/{category}")
+async def getTopHeadlinesOfCategory(language: str, category: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
-    top_headlines_category = newsapi.get_top_headlines(category=category, language='en')
+    top_headlines_category = newsapi.get_top_headlines(category=category, language=language)
     filteredResponse = filterResponse(top_headlines_category)
     alogrithmResponse = lda(top_headlines_category)
     return alogrithmResponse, filteredResponse                                                
 
-@app.get("/everything/{fromDate}/{toDate}")
-async def getEverything(fromDate: str, toDate: str):
+@app.get("/everything/{language}/{fromDate}/{toDate}")
+async def getEverything(language: str, fromDate: str, toDate: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
-    everything_from_to = newsapi.get_everything(language='en', from_param=fromDate, to=toDate)
+    everything_from_to = newsapi.get_everything(language=language, from_param=fromDate, to=toDate)
     filteredResponse = filterResponse(everything_from_to)
     alogrithmResponse = lda(everything_from_to)
     return alogrithmResponse, filteredResponse
-
-@app.get("/testing")
-async def testing():
-    global newsapiCounter
-    newsapiCounter += 1
-    return changeAPIToken()
-
 
 def lda(response):
     overallFinalArray = []

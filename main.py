@@ -1,4 +1,6 @@
+from cgi import test
 from pydoc import doc
+from turtle import title
 from fastapi import FastAPI
 from newsapi import NewsApiClient
 
@@ -19,11 +21,29 @@ from gensim import corpora
 
 # to suppress warnings
 from warnings import filterwarnings
+
+from sqlalchemy import over
 filterwarnings('ignore')
 
 newsapi = NewsApiClient(api_key='95b1fb3ce561467d9ffff81d954940a6')
 
+class Object(object):
+    pass
+class Quelle(object):
+    id: str
+    name: str
+class Artikel(object):
+    author: str
+    title: str
+    description: str
+    released: str
+    url: str
+    image: str
+    source: Quelle
+
+
 app = FastAPI()
+
 
 @app.get("/")
 async def root():
@@ -33,61 +53,74 @@ async def root():
 @app.get("/top-headlines/")
 async def getTopHeadlines():
     top_headlines = newsapi.get_top_headlines(language='en')
-    return top_headlines
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
 
 @app.get("/top-headlines/{country}")
 async def getTopHeadlinesOfCountry(country: str):
     top_headlines_country = newsapi.get_top_headlines(country=country,
                                                     language='en')
-    return top_headlines_country
+    filteredResponse = filterResponse(top_headlines_country)
+    alogrithmResponse = lda(top_headlines_country)
+    return alogrithmResponse, filteredResponse 
 
 @app.get("/top-headlines/{category}")
 async def getTopHeadlinesOfCategory(category: str):
     top_headlines_category = newsapi.get_top_headlines(category=category,
                                                         language='en')
-    return top_headlines_category
+    filteredResponse = filterResponse(top_headlines_category)
+    alogrithmResponse = lda(top_headlines_category)
+    return alogrithmResponse, filteredResponse                                                
 
 @app.get("/everything/{fromDate}/{toDate}")
 async def getEverything(fromDate: str, toDate: str):
     everything_from_to = newsapi.get_everything(language='en', from_param=fromDate, to=toDate)
-    return everything_from_to
+    filteredResponse = filterResponse(everything_from_to)
+    alogrithmResponse = lda(everything_from_to)
+    return alogrithmResponse, filteredResponse
 
 
-@app.get("/test")
-async def lda():
-    d1 = 'I want to watch a movie this weekend.'
-    d2 =  'I went shopping yesterday. New Zealand won the World Test Championship by beating India by eight wickets at Southampton.'
-    d3 =  'I don’t watch cricket. Netflix and Amazon Prime have very good movies to watch.'
-    d4 =  'Movies are a nice way to chill however, this time I would like to paint and read some good books. It’s been long!'
-    d5 =  'This blueberry milkshake is so good! Try reading Dr. Joe Dispenza’s books. His work'
-
-    corpus = [d1]
-    print(corpus)
-
-    clean_corpus = [clean(doc).split() for doc in corpus]
-
-    dict_ = corpora.Dictionary(clean_corpus)
-
-    doc_term_matrix = [dict_.doc2bow(i) for i in clean_corpus]
-
-    print(dict_)
 
 
-    Lda = gensim.models.ldamodel.LdaModel
+def lda(response):
+    overallFinalArray = []
+    allTitlesInArray = getTitleFromArticles(response)
 
-    ldamodel = Lda(doc_term_matrix, num_topics=6, id2word = dict_, passes=1, random_state=0, eval_every=None)
+    for yeet in allTitlesInArray:
+        corpus = [yeet]
 
-    count = 0
-    for i in ldamodel[doc_term_matrix]:
-        print("doc : ",count,i)
-        count += 1
+        clean_corpus = [clean(doc).split() for doc in corpus]
 
-    return ldamodel.print_topics(num_topics=6, num_words=5)
+        dict_ = corpora.Dictionary(clean_corpus)
 
+        doc_term_matrix = [dict_.doc2bow(i) for i in clean_corpus]
 
+        Lda = gensim.models.ldamodel.LdaModel
+
+        ldamodel = Lda(doc_term_matrix, num_topics=1, id2word = dict_, passes=1, random_state=0, eval_every=None)
+
+        topic = ldamodel.show_topics(formatted=True, num_topics=1, num_words=5)[0][1]
+        txt = topic.split(' + ')
+        for i in txt:
+            test = i.split('*')
+            adji = test[1]
+            result = re.search('\"(.*)\"', adji)
+            if any(x.value == result.group(1) for x in overallFinalArray):
+                verarschig = [x.value for x in overallFinalArray].index(result.group(1))
+                overallFinalArray[verarschig].times = overallFinalArray[verarschig].times + 1
+            else:
+                b = Object()
+                b.times = 1
+                b.value = result.group(1)
+                overallFinalArray.append(b)
+
+    return overallFinalArray
 
 # One function for all the steps:
 def clean(doc):
+
+
     stop = set(stopwords.words('english'))
 
     exclude = set(string.punctuation)
@@ -103,3 +136,33 @@ def clean(doc):
     # remove punctuations + normalize the text
     normalized = " ".join(lemma.lemmatize(word) for word in punc_free.split())  
     return normalized
+
+def getTitleFromArticles(response):
+    titleArray = []
+    for x in response['articles']:
+        titleArray.append(x['title'])
+    return titleArray
+
+def filterResponse(response):
+    newsArticles = []
+    for x in response['articles']:
+        a = Artikel()
+        b = Quelle()
+        if x['author'] == None:
+            a.author = "No Author"
+        else:
+            a.author = x['author']
+
+        a.title = x['title']
+        a.description = x['description']
+        a.released = x['publishedAt']
+        a.url = x['url']
+        a.image = x['urlToImage']
+        b.id = x['source']['id']
+        b.name = x['source']['name']
+        a.source = b
+
+        newsArticles.append(a)
+    return newsArticles
+
+

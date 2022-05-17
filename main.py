@@ -4,8 +4,9 @@ from newsapi import NewsApiClient
 # for text preprocessing
 import re
 
-from nltk.corpus import stopwords 
+from nltk.corpus import stopwords, wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
+import nltk
 import string
 
 # Importing Gensim
@@ -89,6 +90,7 @@ def lda(response):
     allTitlesInArray = getTitleFromArticles(response)
 
     for yeet in allTitlesInArray:
+
         corpus = [yeet]
 
         clean_corpus = [clean(doc).split() for doc in corpus]
@@ -101,20 +103,24 @@ def lda(response):
 
         ldamodel = Lda(doc_term_matrix, num_topics=1, id2word = dict_, passes=1, random_state=0, eval_every=None)
 
+
         topic = ldamodel.show_topics(formatted=True, num_topics=1, num_words=5)[0][1]
         txt = topic.split(' + ')
         for i in txt:
             test = i.split('*')
             adji = test[1]
             result = re.search('\"(.*)\"', adji)
-            if any(x.value == result.group(1) for x in overallFinalArray):
-                verarschig = [x.value for x in overallFinalArray].index(result.group(1))
-                overallFinalArray[verarschig].times = overallFinalArray[verarschig].times + 1
-            else:
-                b = Object()
-                b.times = 1
-                b.value = result.group(1)
-                overallFinalArray.append(b)
+            if len(result.group(1)) > 2:
+                if any(x.value == result.group(1) for x in overallFinalArray):
+                    verarschig = [x.value for x in overallFinalArray].index(result.group(1))
+                    overallFinalArray[verarschig].times = overallFinalArray[verarschig].times + 1
+                else:
+                    b = Object()
+                    b.times = 1
+                    b.value = result.group(1)
+                    overallFinalArray.append(b)
+
+    overallFinalArray.sort(key=lambda x: x.times, reverse=True)
 
     return overallFinalArray
 

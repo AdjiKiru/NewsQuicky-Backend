@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from newsapi import NewsApiClient
+from newsapi.newsapi_client import NewsApiClient
 
 # for text preprocessing
 import re

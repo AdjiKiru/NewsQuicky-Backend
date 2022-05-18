@@ -1,5 +1,9 @@
+from tokenize import Number
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from newsapi.newsapi_client import NewsApiClient
+from datetime import timedelta,datetime
+from dateutil import parser
 
 # for text preprocessing
 import re
@@ -39,13 +43,23 @@ class Artikel(object):
 
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 async def root():
     return "Hello NewsQuicky"
 
 
-@app.get("/top-headlines/{language}/")
+@app.get("/top-headlines/{language}")
 async def getTopHeadlines(language: str):
     global newsapiCounter
     newsapiCounter += 1
@@ -158,9 +172,13 @@ def filterResponse(response):
         else:
             a.author = x['author']
 
+        date = parser.parse(x['publishedAt'])
+        date_time_obj = date.strftime('%b %d %Y %H:%M:%S')
+
+
         a.title = x['title']
         a.description = x['description']
-        a.released = x['publishedAt']
+        a.released = date_time_obj
         a.url = x['url']
         a.image = x['urlToImage']
         b.id = x['source']['id']

@@ -1,4 +1,6 @@
 fastapi==0.78.0
+gensim
+uvicorn
 newsapi==0.1.1
 newsapi_python==0.2.6
 nltk==3.7

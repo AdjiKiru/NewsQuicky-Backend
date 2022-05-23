@@ -58,9 +58,9 @@ app.add_middleware(
 async def root():
     return "Hello NewsQuicky"
 
-
-@app.get("/top-headlines/{language}")
-async def getTopHeadlines(language: str):
+# Language
+@app.get("/top-headlines/language/{language}")
+async def getTopHeadlinesLanguage(language: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
@@ -69,25 +69,89 @@ async def getTopHeadlines(language: str):
     alogrithmResponse = lda(top_headlines)
     return alogrithmResponse, filteredResponse
 
-@app.get("/top-headlines/{language}/{country}")
-async def getTopHeadlinesOfCountry(language: str, country: str):
+# Country
+@app.get("/top-headlines/country/{country}")
+async def getTopHeadlinesCountry(country: str):
     global newsapiCounter
     newsapiCounter += 1
     changeAPIToken()
-    top_headlines_country = newsapi.get_top_headlines(country=country, language=language)
+    top_headlines = newsapi.get_top_headlines(country=country)
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
+
+# Category
+@app.get("/top-headlines/category/{category}")
+async def getTopHeadlinesCategory(category: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines = newsapi.get_top_headlines(category=category)
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
+
+# Language & Country
+@app.get("/top-headlines/langcount/{language}/{country}")
+async def getTopHeadlinesLanguageCountry(language: str, country: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines = newsapi.get_top_headlines(language=language, country=country)
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
+
+# Language & Category
+@app.get("/top-headlines/langcate/{language}/{category}")
+async def getTopHeadlinesLanguageCategory(language: str, category: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines = newsapi.get_top_headlines(language=language, category=category)
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
+
+# Country & Category
+@app.get("/top-headlines/countcate/{country}/{category}")
+async def getTopHeadlinesCountryCategory(country: str, category: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines = newsapi.get_top_headlines(country=country, category=category)
+    filteredResponse = filterResponse(top_headlines)
+    alogrithmResponse = lda(top_headlines)
+    return alogrithmResponse, filteredResponse
+
+@app.get("/top-headlines/{language}/{country}/{category}")
+async def getTopHeadlinesOfAll(language: str, country: str, category: str):
+    global newsapiCounter
+    newsapiCounter += 1
+    changeAPIToken()
+    top_headlines_country = newsapi.get_top_headlines(country=country, language=language, category=category)
     filteredResponse = filterResponse(top_headlines_country)
     alogrithmResponse = lda(top_headlines_country)
     return alogrithmResponse, filteredResponse 
 
-@app.get("/top-headlines/{language}/{category}")
-async def getTopHeadlinesOfCategory(language: str, category: str):
-    global newsapiCounter
-    newsapiCounter += 1
-    changeAPIToken()
-    top_headlines_category = newsapi.get_top_headlines(category=category, language=language)
-    filteredResponse = filterResponse(top_headlines_category)
-    alogrithmResponse = lda(top_headlines_category)
-    return alogrithmResponse, filteredResponse                                                
+
+# # EXTRA
+# @app.get("/top-headlines/{language}/{category}/{cate}")
+# async def getTopHeadlinesOfCategory(language: str, category: str):
+#     global newsapiCounter
+#     newsapiCounter += 1
+#     changeAPIToken()
+#     top_headlines_category = newsapi.get_top_headlines(category=category, language=language)
+#     filteredResponse = filterResponse(top_headlines_category)
+#     alogrithmResponse = lda(top_headlines_category)
+#     return alogrithmResponse, filteredResponse                                                
+
+
+
+
+
+
+
 
 @app.get("/everything/{language}/{fromDate}/{toDate}")
 async def getEverything(language: str, fromDate: str, toDate: str):

@@ -129,35 +129,6 @@ async def getTopHeadlinesOfAll(language: str, country: str, category: str):
     alogrithmResponse = lda(top_headlines_country)
     return alogrithmResponse, filteredResponse 
 
-
-# # EXTRA
-# @app.get("/top-headlines/{language}/{category}/{cate}")
-# async def getTopHeadlinesOfCategory(language: str, category: str):
-#     global newsapiCounter
-#     newsapiCounter += 1
-#     changeAPIToken()
-#     top_headlines_category = newsapi.get_top_headlines(category=category, language=language)
-#     filteredResponse = filterResponse(top_headlines_category)
-#     alogrithmResponse = lda(top_headlines_category)
-#     return alogrithmResponse, filteredResponse                                                
-
-
-
-
-
-
-
-
-@app.get("/everything/{language}/{fromDate}/{toDate}")
-async def getEverything(language: str, fromDate: str, toDate: str):
-    global newsapiCounter
-    newsapiCounter += 1
-    changeAPIToken()
-    everything_from_to = newsapi.get_everything(language=language, from_param=fromDate, to=toDate)
-    filteredResponse = filterResponse(everything_from_to)
-    alogrithmResponse = lda(everything_from_to)
-    return alogrithmResponse, filteredResponse
-
 def lda(response):
     overallFinalArray = []
     allTitlesInArray = getTitleFromArticles(response)

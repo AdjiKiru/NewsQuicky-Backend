@@ -134,19 +134,12 @@ def lda(response):
     allTitlesInArray = getTitleFromArticles(response)
 
     for yeet in allTitlesInArray:
-
         corpus = [yeet]
-
         clean_corpus = [clean(doc).split() for doc in corpus]
-
         dict_ = corpora.Dictionary(clean_corpus)
-
         doc_term_matrix = [dict_.doc2bow(i) for i in clean_corpus]
-
         Lda = gensim.models.ldamodel.LdaModel
-
         ldamodel = Lda(doc_term_matrix, num_topics=1, id2word = dict_, passes=1, random_state=0, eval_every=None)
-
 
         topic = ldamodel.show_topics(formatted=True, num_topics=1, num_words=5)[0][1]
         txt = topic.split(' + ')
@@ -165,23 +158,17 @@ def lda(response):
                     overallFinalArray.append(b)
 
     overallFinalArray.sort(key=lambda x: x.times, reverse=True)
-
     return overallFinalArray
 
 # One function for all the steps:
 def clean(doc):
     stop = set(stopwords.words('english'))
-
     exclude = set(string.punctuation)
-
     lemma = WordNetLemmatizer()
-    
     # convert text into lower case + split into words
     stop_free = " ".join([i for i in doc.lower().split() if i not in stop])
-    
     # remove any stop words present
     punc_free = ''.join(ch for ch in stop_free if ch not in exclude)  
-    
     # remove punctuations + normalize the text
     normalized = " ".join(lemma.lemmatize(word) for word in punc_free.split())  
     return normalized
@@ -204,7 +191,6 @@ def filterResponse(response):
 
         date = parser.parse(x['publishedAt'])
         date_time_obj = date.strftime('%b %d %Y %H:%M:%S')
-
 
         a.title = x['title']
         a.description = x['description']

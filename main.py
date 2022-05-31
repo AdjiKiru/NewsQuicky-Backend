@@ -1,8 +1,6 @@
-from tokenize import Number
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from newsapi.newsapi_client import NewsApiClient
-from datetime import timedelta,datetime
 from dateutil import parser
 
 # for text preprocessing
@@ -10,7 +8,6 @@ import re
 
 from nltk.corpus import stopwords, wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
-import nltk
 import string
 
 # Importing Gensim
@@ -19,8 +16,6 @@ from gensim import corpora
 
 # to suppress warnings
 from warnings import filterwarnings
-
-from sqlalchemy import over
 filterwarnings('ignore')
 
 newsapi = NewsApiClient(api_key='95b1fb3ce561467d9ffff81d954940a6')
